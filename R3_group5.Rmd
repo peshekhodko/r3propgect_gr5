@@ -1,0 +1,46 @@
+---
+title: "Group 5, R Project 3"
+author: "Kera Whitley, Laura Mathews, Nataliya Peshekhodko"
+date: '`r format(Sys.Date(), "%Y-%B-%d")`'
+
+abstract: "This is abstarct."
+
+output: pdf_document
+---
+```{r}
+library(dplyr)
+```
+
+# First part
+
+## Read data
+Read the data from txt file.
+
+```{r}
+data <- read.delim("mpg.txt", header=TRUE, sep=" ")
+```
+
+
+## Two sample t-test
+
+T-test with equal variance 
+
+```{r}
+t.test( MPG~Country, data = data, var.equal=TRUE)
+```
+
+T-test with unequal variance 
+
+```{r}
+t.test( MPG~Country, data = data, var.equal=TRUE)
+```
+
+
+## How well the normality assumption met by the data
+
+## Preferable test for selected dataset
+
+
+
+# Second part
+
