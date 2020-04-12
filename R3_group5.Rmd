@@ -7,13 +7,14 @@ abstract: "This is abstarct."
 
 output: pdf_document
 ---
-```{r}
+```{r message=FALSE}
 library(dplyr)
 ```
 
 # First part
 
-## Read data
+
+## 1.1. Read data
 Read the data from txt file.
 
 ```{r}
@@ -21,24 +22,35 @@ data <- read.delim("mpg.txt", header=TRUE, sep=" ")
 ```
 
 
-## Two sample t-test
+## 1.2. Two sample t-test
 
 T-test with equal variance 
 
 ```{r}
-t.test( MPG~Country, data = data, var.equal=TRUE)
+equal.var.test <- t.test( MPG~Country, data = data, var.equal=TRUE, conf.level=0.95)
+equal.var.test
 ```
 
-T-test with unequal variance 
+Based on the equal variance t.test **p-value=`r equal.var.test$p.value`**, we can reject the null hypothesis. 
+
+T-test with unequal variance: 
 
 ```{r}
-t.test( MPG~Country, data = data, var.equal=TRUE)
+unequal.var.test <- t.test( MPG~Country, data = data, var.equal=FALSE, conf.level = 0.95)
+unequal.var.test
+```
+
+Based on the unequal variance t.test **p-value=`r unequal.var.test$p.value`**, we also can reject the null hypothesis. 
+
+## 1.3. How well the normality assumption met by the data
+
+```{r}
+hist(filter(data, Country == "US")$MPG)
+hist(filter(data, Country == "Japan")$MPG)
 ```
 
 
-## How well the normality assumption met by the data
-
-## Preferable test for selected dataset
+## 1.4. Preferable test for selected dataset
 
 
 
