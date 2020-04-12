@@ -9,6 +9,7 @@ output: pdf_document
 ---
 ```{r message=FALSE}
 library(dplyr)
+library (ggplot2)
 ```
 
 # First part
@@ -44,9 +45,19 @@ Based on the unequal variance t.test **p-value=`r unequal.var.test$p.value`**, w
 
 ## 1.3. How well the normality assumption met by the data
 
+Checking data normality
+
 ```{r}
-hist(filter(data, Country == "US")$MPG)
-hist(filter(data, Country == "Japan")$MPG)
+us <- filter(data, Country == "US")
+japan <- filter(data, Country == "Japan")
+
+ggplot (us, aes(us$MPG))+geom_histogram(colour="black", fill = "white") + stat_function(fun=dnorm, args = list (mean = mean (us$MPG), sd=sd(us$MPG)))
+
+ggplot(us, aes(sample = us$MPG))+stat_qq()+stat_qq_line()
+
+ggplot (japan, aes(japan$MPG))+geom_histogram()
+ggplot(japan, aes(sample = japan$MPG))+stat_qq()+stat_qq_line()
+
 ```
 
 
