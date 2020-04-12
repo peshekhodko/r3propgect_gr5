@@ -10,6 +10,7 @@ output: pdf_document
 ```{r message=FALSE}
 library(dplyr)
 library (ggplot2)
+library (gridExtra)
 ```
 
 # First part
@@ -47,17 +48,20 @@ Based on the unequal variance t.test **p-value=`r unequal.var.test$p.value`**, w
 
 Checking data normality
 
-```{r}
+```{r message=FALSE}
 us <- filter(data, Country == "US")
 japan <- filter(data, Country == "Japan")
 
-ggplot (us, aes(us$MPG))+geom_histogram(colour="black", fill = "white") + stat_function(fun=dnorm, args = list (mean = mean (us$MPG), sd=sd(us$MPG)))
+par(mfrow=c(2,2))
+hist_us<- ggplot (us, aes(MPG))+geom_histogram(aes(y=..density..),colour="black", fill = "white") + 
+  stat_function(fun=dnorm, args = list (mean = mean(us$MPG), sd=sd(us$MPG)), colour = "red")
+qq_us <- ggplot(us, aes(sample = MPG))+stat_qq()+stat_qq_line()
+grid.arrange(hist_us, qq_us, ncol=1, nrow=2)
 
-ggplot(us, aes(sample = us$MPG))+stat_qq()+stat_qq_line()
-
-ggplot (japan, aes(japan$MPG))+geom_histogram()
-ggplot(japan, aes(sample = japan$MPG))+stat_qq()+stat_qq_line()
-
+hist_jpn <- ggplot (japan, aes(MPG))+geom_histogram(aes(y=..density..),colour="black", fill = "white") + 
+  stat_function(fun=dnorm, args = list (mean = mean(japan$MPG), sd=sd(japan$MPG)), colour = "red")
+qq_jpn <- ggplot(japan, aes(sample = MPG))+stat_qq()+stat_qq_line()
+grid.arrange(hist_jpn, qq_jpn, ncol=1, nrow=2)
 ```
 
 
