@@ -71,3 +71,92 @@ grid.arrange(hist_jpn, qq_jpn, ncol=1, nrow=2)
 
 # Second part
 
+
+```{r}
+alpha = 0.05
+N = 1000
+n = 10 
+
+var1 = 1
+var2 = 1
+
+mu1 = 0 
+mu2 = -5
+
+tmp_pwr <- c()
+tmp_mu_diff <- c ()
+
+
+yH0 <- replicate (N, rnorm (n, mean = mu1, sd = sqrt (var1) ))
+cutoff <- qnorm (alpha, mean = mu1, sd = sqrt (var1) )
+decisionsALPHA <- apply (X=yH0, MARGIN = 2, function (x){sum(x)<cutoff})
+mean (decisionsALPHA)
+yHA <- replicate (N, rnorm (n, mean = mu2, sd = sqrt (var2) ))
+decisionsPWR <- apply (X = yHA, MARGIN = 2, function (x) {sum(x) < cutoff})
+pwr <- mean (decisionsPWR)
+#hist (colSums(yH0), prob = TRUE)
+#hist (colSums(yHA), prob = TRUE)
+#pwr_df <- as.data.frame(cbind (colSums(yHA)) )
+tmp_pwr <- append  (tmp_pwr, pwr)
+tmp_mu_diff <- append (tmp_mu_diff, mu2)
+
+var1 = 1
+var2 = 1
+mu1 = 0 
+mu2 = -1
+yH0 <- replicate (N, rnorm (n, mean = mu1, sd = sqrt (var1) ))
+cutoff <- qnorm (alpha, mean = mu1, sd = sqrt (var1) )
+decisionsALPHA <- apply (X=yH0, MARGIN = 2, function (x){sum(x)<cutoff})
+mean (decisionsALPHA)
+yHA <- replicate (N, rnorm (n, mean = mu2, sd = sqrt (var2) ))
+decisionsPWR <- apply (X = yHA, MARGIN = 2, function (x) {sum(x) < cutoff})
+pwr <- mean (decisionsPWR)
+tmp_pwr <- append  (tmp_pwr, pwr)
+tmp_mu_diff <- append (tmp_mu_diff, mu2)
+
+
+
+var1 = 1
+var2 = 1
+mu1 = 0 
+mu2 = 0
+yH0 <- replicate (N, rnorm (n, mean = mu1, sd = sqrt (var1) ))
+cutoff <- qnorm (alpha, mean = mu1, sd = sqrt (var1) )
+decisionsALPHA <- apply (X=yH0, MARGIN = 2, function (x){sum(x)<cutoff})
+yHA <- replicate (N, rnorm (n, mean = mu2, sd = sqrt (var2) ))
+decisionsPWR <- apply (X = yHA, MARGIN = 2, function (x) {sum(x) < cutoff})
+pwr <- mean (decisionsPWR)
+tmp_pwr <- append  (tmp_pwr, pwr)
+tmp_mu_diff <- append (tmp_mu_diff, mu2)
+
+
+var1 = 1
+var2 = 1
+mu1 = 0 
+mu2 = 1
+yH0 <- replicate (N, rnorm (n, mean = mu1, sd = sqrt (var1) ))
+cutoff <- qnorm (alpha, mean = mu1, sd = sqrt (var1) )
+decisionsALPHA <- apply (X=yH0, MARGIN = 2, function (x){sum(x)<cutoff})
+yHA <- replicate (N, rnorm (n, mean = mu2, sd = sqrt (var2) ))
+decisionsPWR <- apply (X = yHA, MARGIN = 2, function (x) {sum(x) < cutoff})
+pwr <- mean (decisionsPWR)
+tmp_pwr <- append  (tmp_pwr, pwr)
+tmp_mu_diff <- append (tmp_mu_diff, mu2)
+
+
+var1 = 1
+var2 = 1
+
+mu1 = 0 
+mu2 = 5
+yH0 <- replicate (N, rnorm (n, mean = mu1, sd = sqrt (var1) ))
+cutoff <- qnorm (alpha, mean = mu1, sd = sqrt (var1) )
+decisionsALPHA <- apply (X=yH0, MARGIN = 2, function (x){sum(x)<cutoff})
+yHA <- replicate (N, rnorm (n, mean = mu2, sd = sqrt (var2) ))
+decisionsPWR <- apply (X = yHA, MARGIN = 2, function (x) {sum(x) < cutoff})
+pwr <- mean (decisionsPWR)
+tmp_pwr <- append  (tmp_pwr, pwr)
+tmp_mu_diff <- append (tmp_mu_diff, mu2)
+
+plot(tmp_mu_diff, tmp_pwr, type = "l")
+```
