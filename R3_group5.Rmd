@@ -70,402 +70,102 @@ grid.arrange(hist_jpn, qq_jpn, ncol=1, nrow=2)
 # Second part
 
 
+
 ```{r}
-alpha = 0.05
-N = 5000
 
-n1 = 10
-n2 = 10
-mu_1 = -5
-mu_2 = 0
-mu1_mu2 = -5
 
-var1 = 1
-var2 = 1
-#var_both = (var1/n1+var2/n2)
-#yHA <-rnorm (N, mean = mu1_mu2, sd = sqrt (var_both))
-#yH0 <-rnorm (N, mean = 0,  sd = sqrt (var_both))
-
-A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-
-pvalues_eq <- c()
-pvalues_noteq <- c()
-mu_dif <- c ()
-
-pwr_eq_sigma1_1 <- c()
-pwr_noteq_sigma1_1 <- c()
-
-for (col in 1:ncol(A_sample)) {
+get_power <- function (n1, n2, var1, var2) {
+  
+  alpha = 0.05
+  N = 1000
+  mu_1 = -5
+  mu_2 = 0
+  mu1_mu2 = -5
+  A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
+  B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
+  
+  pvalues_eq <- c()
+  pvalues_noteq <- c()
+  pwr_eq_sigma <- c()
+  pwr_noteq_sigma <- c()
+  
+  for (col in 1:ncol(A_sample)) {
   pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
                                            conf.level = 0.95)$p.value )
   pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
                                                  conf.level = 0.95)$p.value )}
- 
-pwr_eq_sigma1_1 <- append (pwr_eq_sigma1_1, sum (pvalues_eq < alpha)/N)
-pwr_noteq_sigma1_1 <-append (pwr_noteq_sigma1_1,  sum (pvalues_noteq < alpha)/N )
-mu_dif<-append (mu_dif, mu1_mu2)
-
-
-n1 = 10
-n2 = 10
-mu_1 = -1
-mu_2 = 0
-mu1_mu2 = -1
-
-var1 = 1
-var2 = 1
-var_both = (var1/n1+var2/n2)
-
-A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-
-
-pvalues_eq <- c()
-pvalues_noteq <- c()
-
-for (col in 1:ncol(A_sample)) {
   
+  pwr_eq_sigma <- append (pwr_eq_sigma, sum (pvalues_eq < alpha)/N)
+  pwr_noteq_sigma <-append (pwr_noteq_sigma,  sum (pvalues_noteq < alpha)/N )
+
+  
+  mu_1 = -1
+  mu_2 = 0
+  mu1_mu2 = -1
+  A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
+  B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
+  pvalues_eq <- c()
+  pvalues_noteq <- c()
+  for (col in 1:ncol(A_sample)) {
   pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
                                            conf.level = 0.95)$p.value )
   pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                 conf.level = 0.95)$p.value )
-}
- 
-pwr_eq_sigma1_1 <- append (pwr_eq_sigma1_1, sum (pvalues_eq < alpha)/N)
-pwr_noteq_sigma1_1 <-append (pwr_noteq_sigma1_1,  sum (pvalues_noteq < alpha)/N )
-mu_dif<-append (mu_dif, mu1_mu2)
+                                                 conf.level = 0.95)$p.value )}
+  pwr_eq_sigma <- append (pwr_eq_sigma, sum (pvalues_eq < alpha)/N)
+  pwr_noteq_sigma <-append (pwr_noteq_sigma,  sum (pvalues_noteq < alpha)/N )
 
-
-n1 = 10
-n2 = 10
-mu_1 = 1
-mu_2 = 0
-mu1_mu2 = 1
-
-var1 = 1
-var2 = 1
-var_both = (var1/n1+var2/n2)
-
-A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-
-
-pvalues_eq <- c()
-pvalues_noteq <- c()
-
-for (col in 1:ncol(A_sample)) {
   
+  mu_1 = 1
+  mu_2 = 0
+  mu1_mu2 = 1
+  A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
+  B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
+  pvalues_eq <- c()
+  pvalues_noteq <- c()
+  for (col in 1:ncol(A_sample)) {
   pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
                                            conf.level = 0.95)$p.value )
   pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                 conf.level = 0.95)$p.value )
-}
- 
-pwr_eq_sigma1_1 <- append (pwr_eq_sigma1_1, sum (pvalues_eq < alpha)/N)
-pwr_noteq_sigma1_1 <-append (pwr_noteq_sigma1_1,  sum (pvalues_noteq < alpha)/N )
-mu_dif<-append (mu_dif, mu1_mu2)
-
-n1 = 10
-n2 = 10
-mu_1 = 5
-mu_2 = 0
-mu1_mu2 = 5
-
-var1 = 1
-var2 = 1
-var_both = (var1/n1+var2/n2)
-
-A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-
-
-pvalues_eq <- c()
-pvalues_noteq <- c()
-
-for (col in 1:ncol(A_sample)) {
+                                                 conf.level = 0.95)$p.value )}
+  pwr_eq_sigma <- append (pwr_eq_sigma, sum (pvalues_eq < alpha)/N)
+  pwr_noteq_sigma <-append (pwr_noteq_sigma,  sum (pvalues_noteq < alpha)/N )
+  pwr_eq_sigma
+  pwr_noteq_sigma
   
+  mu_1 = 5
+  mu_2 = 0
+  mu1_mu2 = 5
+  A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
+  B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
+  pvalues_eq <- c()
+  pvalues_noteq <- c()
+  for (col in 1:ncol(A_sample)) {
   pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
                                            conf.level = 0.95)$p.value )
   pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                 conf.level = 0.95)$p.value )
+                                                 conf.level = 0.95)$p.value )}
+  pwr_eq_sigma <- append (pwr_eq_sigma, sum (pvalues_eq < alpha)/N)
+  pwr_noteq_sigma <-append (pwr_noteq_sigma,  sum (pvalues_noteq < alpha)/N )
+  pwr_eq_sigma
+  pwr_noteq_sigma
+  
+  return (as.data.frame(cbind (pwr_eq_sigma, pwr_noteq_sigma)))
 }
- 
-pwr_eq_sigma1_1 <- append (pwr_eq_sigma1_1, sum (pvalues_eq < alpha)/N)
-pwr_noteq_sigma1_1 <-append (pwr_noteq_sigma1_1,  sum (pvalues_noteq < alpha)/N )
-mu_dif<-append (mu_dif, mu1_mu2)
-
-#plot (mu_dif, pwr_eq_sigma1_1, type="l")
-#plot (mu_dif, pwr_noteq_sigma1_1, type="l")
-
-n1 = 10
-n2 = 10
-mu_1 = -5
-mu_2 = 0
-mu1_mu2 = -5
-
-var1 = 3
-var2 = 1
-var_both = (var1/n1+var2/n2)
-
-#yHA <-rnorm (N, mean = mu1_mu2, sd = sqrt (var_both))
-#yH0 <-rnorm (N, mean = 0,  sd = sqrt (var_both))
-
-A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-
-pvalues_eq <- c()
-pvalues_noteq <- c()
-mu_dif <- c ()
-
-pwr_eq_sigma1_3 <- c()
-pwr_noteq_sigma1_3 <- c()
-
-for (col in 1:ncol(A_sample)) {
-  
-  pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
-                                           conf.level = 0.95)$p.value )
-  pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                 conf.level = 0.95)$p.value )
-}
- 
-pwr_eq_sigma1_3 <- append (pwr_eq_sigma1_3, sum (pvalues_eq < alpha)/N)
-pwr_noteq_sigma1_3 <-append (pwr_noteq_sigma1_3,  sum (pvalues_noteq < alpha)/N )
-mu_dif<-append (mu_dif, mu1_mu2)
 
 
-n1 = 10
-n2 = 10
-mu_1 = -1
-mu_2 = 0
-mu1_mu2 = -1
-
-var1 = 3
-var2 = 1
-var_both = (var1/n1+var2/n2)
-
-A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-
-
-pvalues_eq <- c()
-pvalues_noteq <- c()
-
-for (col in 1:ncol(A_sample)) {
-  
-  pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
-                                           conf.level = 0.95)$p.value )
-  pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                 conf.level = 0.95)$p.value )
-}
- 
-pwr_eq_sigma1_3 <- append (pwr_eq_sigma1_3, sum (pvalues_eq < alpha)/N)
-pwr_noteq_sigma1_3 <-append (pwr_noteq_sigma1_3,  sum (pvalues_noteq < alpha)/N )
-mu_dif<-append (mu_dif, mu1_mu2)
-
-
-n1 = 10
-n2 = 10
-mu_1 = 1
-mu_2 = 0
-mu1_mu2 = 1
-
-var1 = 3
-var2 = 1
-var_both = (var1/n1+var2/n2)
-
-A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-
-
-pvalues_eq <- c()
-pvalues_noteq <- c()
-
-for (col in 1:ncol(A_sample)) {
-  
-  pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
-                                           conf.level = 0.95)$p.value )
-  pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                 conf.level = 0.95)$p.value )
-}
- 
-pwr_eq_sigma1_3 <- append (pwr_eq_sigma1_3, sum (pvalues_eq < alpha)/N)
-pwr_noteq_sigma1_3 <-append (pwr_noteq_sigma1_3,  sum (pvalues_noteq < alpha)/N )
-mu_dif<-append (mu_dif, mu1_mu2)
-
-n1 = 10
-n2 = 10
-mu_1 = 5
-mu_2 = 0
-mu1_mu2 = 5
-
-var1 = 3
-var2 = 1
-var_both = (var1/n1+var2/n2)
-
-A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-
-
-pvalues_eq <- c()
-pvalues_noteq <- c()
-
-for (col in 1:ncol(A_sample)) {
-  
-  pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
-                                           conf.level = 0.95)$p.value )
-  pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                 conf.level = 0.95)$p.value )
-}
- 
-pwr_eq_sigma1_3 <- append (pwr_eq_sigma1_3, sum (pvalues_eq < alpha)/N)
-pwr_noteq_sigma1_3 <-append (pwr_noteq_sigma1_3,  sum (pvalues_noteq < alpha)/N )
-mu_dif<-append (mu_dif, mu1_mu2)
-
-#plot (mu_dif, pwr_eq_sigma1_3, type="l")
-#plot (mu_dif, pwr_noteq_sigma1_3, type="l")
-
-
-n1 = 10
-n2 = 10
-mu_1 = -5
-mu_2 = 0
-mu1_mu2 = -5
-
-var1 = 9
-var2 = 1
-var_both = (var1/n1+var2/n2)
-
-#yHA <-rnorm (N, mean = mu1_mu2, sd = sqrt (var_both))
-#yH0 <-rnorm (N, mean = 0,  sd = sqrt (var_both))
-
-A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-
-pvalues_eq <- c()
-pvalues_noteq <- c()
-mu_dif <- c ()
-
-pwr_eq_sigma1_9 <- c()
-pwr_noteq_sigma1_9 <- c()
-
-for (col in 1:ncol(A_sample)) {
-  
-  pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
-                                           conf.level = 0.95)$p.value )
-  pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                 conf.level = 0.95)$p.value )
-}
- 
-pwr_eq_sigma1_9 <- append (pwr_eq_sigma1_9, sum (pvalues_eq < alpha)/N)
-pwr_noteq_sigma1_9 <-append (pwr_noteq_sigma1_9,  sum (pvalues_noteq < alpha)/N )
-mu_dif<-append (mu_dif, mu1_mu2)
-
-
-n1 = 10
-n2 = 10
-mu_1 = -1
-mu_2 = 0
-mu1_mu2 = -1
-
-var1 = 9
-var2 = 1
-var_both = (var1/n1+var2/n2)
-
-A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-
-
-pvalues_eq <- c()
-pvalues_noteq <- c()
-
-for (col in 1:ncol(A_sample)) {
-  
-  pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
-                                           conf.level = 0.95)$p.value )
-  pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                 conf.level = 0.95)$p.value )
-}
- 
-pwr_eq_sigma1_9 <- append (pwr_eq_sigma1_9, sum (pvalues_eq < alpha)/N)
-pwr_noteq_sigma1_9 <-append (pwr_noteq_sigma1_9,  sum (pvalues_noteq < alpha)/N )
-mu_dif<-append (mu_dif, mu1_mu2)
-
-
-n1 = 10
-n2 = 10
-mu_1 = 1
-mu_2 = 0
-mu1_mu2 = 1
-
-var1 = 9
-var2 = 1
-var_both = (var1/n1+var2/n2)
-
-A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-
-
-pvalues_eq <- c()
-pvalues_noteq <- c()
-
-for (col in 1:ncol(A_sample)) {
-  
-  pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
-                                           conf.level = 0.95)$p.value )
-  pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                 conf.level = 0.95)$p.value )
-}
- 
-pwr_eq_sigma1_9 <- append (pwr_eq_sigma1_9, sum (pvalues_eq < alpha)/N)
-pwr_noteq_sigma1_9 <-append (pwr_noteq_sigma1_9,  sum (pvalues_noteq < alpha)/N )
-mu_dif<-append (mu_dif, mu1_mu2)
-
-n1 = 10
-n2 = 10
-mu_1 = 5
-mu_2 = 0
-mu1_mu2 = 5
-
-var1 = 9
-var2 = 1
-var_both = (var1/n1+var2/n2)
-
-A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-
-
-pvalues_eq <- c()
-pvalues_noteq <- c()
-
-for (col in 1:ncol(A_sample)) {
-  
-  pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
-                                           conf.level = 0.95)$p.value )
-  pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                 conf.level = 0.95)$p.value )
-}
- 
-pwr_eq_sigma1_9 <- append (pwr_eq_sigma1_9, sum (pvalues_eq < alpha)/N)
-pwr_noteq_sigma1_9 <-append (pwr_noteq_sigma1_9,  sum (pvalues_noteq < alpha)/N )
-mu_dif<-append (mu_dif, mu1_mu2)
-
-#plot (mu_dif, pwr_eq_sigma1_9, type="l")
-#plot (mu_dif, pwr_noteq_sigma1_9, type="l")
-
-res <- as.data.frame(cbind (mu_dif, pwr_eq_sigma1_1, pwr_noteq_sigma1_1, pwr_eq_sigma1_3, pwr_noteq_sigma1_3,
-                            pwr_eq_sigma1_9, pwr_noteq_sigma1_9))
-
-
-ggplot ()+ geom_line (data = res, aes (x = mu_dif, pwr_eq_sigma1_1), color = "blue") + 
-           geom_line (data = res, aes (x = mu_dif, pwr_noteq_sigma1_1), color = "red") +
-           geom_line (data = res, aes (x = mu_dif, pwr_eq_sigma1_3), color = "green") + 
-           geom_line (data = res, aes (x = mu_dif, pwr_noteq_sigma1_3), color = "black")+
-           geom_line (data = res, aes (x = mu_dif, pwr_eq_sigma1_9), color = "grey") +
-           geom_line (data = res, aes (x = mu_dif, pwr_noteq_sigma1_9), color = "brown")
+res <- cbind (c(-5, -1, 1, 5), get_power(10, 10, 1, 1), get_power(10, 10, 3, 1), get_power(10, 10, 9, 1))
+names(res)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
+res
+ggplot ()+ geom_line (data = res, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+          geom_line (data = res, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+          geom_line (data = res, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
+          geom_line (data = res, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
+          geom_line (data = res, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
+          geom_line (data = res, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
   
 
-  
+
+
 
 ```
 
