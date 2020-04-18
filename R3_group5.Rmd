@@ -114,6 +114,21 @@ get_power <- function (n1, n2, var1, var2) {
   pwr_eq_sigma <- append (pwr_eq_sigma, sum (pvalues_eq < alpha)/N)
   pwr_noteq_sigma <-append (pwr_noteq_sigma,  sum (pvalues_noteq < alpha)/N )
 
+  #Added this section
+  mu_1 = 0
+  mu_2 = 0
+  mu1_mu2 = 0
+  A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
+  B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
+  pvalues_eq <- c()
+  pvalues_noteq <- c()
+  for (col in 1:ncol(A_sample)) {
+    pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
+                                             conf.level = 0.95)$p.value )
+    pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
+                                                   conf.level = 0.95)$p.value )}
+  pwr_eq_sigma <- append (pwr_eq_sigma, sum (pvalues_eq < alpha)/N)
+  pwr_noteq_sigma <-append (pwr_noteq_sigma,  sum (pvalues_noteq < alpha)/N )
   
   mu_1 = 1
   mu_2 = 0
@@ -152,8 +167,8 @@ get_power <- function (n1, n2, var1, var2) {
   return (as.data.frame(cbind (pwr_eq_sigma, pwr_noteq_sigma)))
 }
 
-
-res <- cbind (c(-5, -1, 1, 5), get_power(10, 10, 1, 1), get_power(10, 10, 3, 1), get_power(10, 10, 9, 1))
+#Added mu1 - mu2 = 0
+res <- cbind (c(-5, -1, 0, 1, 5), get_power(10, 10, 1, 1), get_power(10, 10, 3, 1), get_power(10, 10, 9, 1))
 names(res)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
 res
 ggplot ()+ geom_line (data = res, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
@@ -163,9 +178,88 @@ ggplot ()+ geom_line (data = res, aes (x = mu_dif, y = pwr_eq_sigma1_1), color =
           geom_line (data = res, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
           geom_line (data = res, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
   
-
-
-
-
 ```
 
+The rest of the combinations. I messed with some of the naming just to keep things seperate for each
+```{r}
+res1025 <- cbind (c(-5, -1, 0, 1, 5), get_power(10, 25, 1, 1), get_power(10, 25, 3, 1), get_power(10, 25, 9, 1))
+names(res1025)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
+res1025
+ggplot ()+ geom_line (data = res1025, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+  geom_line (data = res1025, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+  geom_line (data = res1025, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
+  geom_line (data = res1025, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
+  geom_line (data = res1025, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
+  geom_line (data = res1025, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
+
+res1060 <- cbind (c(-5, -1, 0, 1, 5), get_power(10, 60, 1, 1), get_power(10, 10, 3, 1), get_power(10, 60, 9, 1))
+names(res1060)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
+res1060
+ggplot ()+ geom_line (data = res1060, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+  geom_line (data = res1060, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+  geom_line (data = res1060, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
+  geom_line (data = res1060, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
+  geom_line (data = res1060, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
+  geom_line (data = res1060, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
+
+res2510 <- cbind (c(-5, -1, 0, 1, 5), get_power(25, 10, 1, 1), get_power(25, 10, 3, 1), get_power(25, 10, 9, 1))
+names(res2510)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
+res2510
+ggplot ()+ geom_line (data = res2510, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+  geom_line (data = res2510, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+  geom_line (data = res2510, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
+  geom_line (data = res2510, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
+  geom_line (data = res2510, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
+  geom_line (data = res2510, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
+
+res6010 <- cbind (c(-5, -1, 0, 1, 5), get_power(60, 10, 1, 1), get_power(60, 10, 3, 1), get_power(60, 10, 9, 1))
+names(res6010)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
+res6010
+ggplot ()+ geom_line (data = res6010, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+  geom_line (data = res6010, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+  geom_line (data = res6010, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
+  geom_line (data = res6010, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
+  geom_line (data = res6010, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
+  geom_line (data = res6010, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
+
+res2525 <- cbind (c(-5, -1, 0, 1, 5), get_power(25, 25, 1, 1), get_power(25, 25, 3, 1), get_power(25, 25, 9, 1))
+names(res2525)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
+res2525
+ggplot ()+ geom_line (data = res2525, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+  geom_line (data = res2525, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+  geom_line (data = res2525, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
+  geom_line (data = res2525, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
+  geom_line (data = res2525, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
+  geom_line (data = res2525, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
+
+res2560 <- cbind (c(-5, -1, 0, 1, 5), get_power(25, 60, 1, 1), get_power(25, 60, 3, 1), get_power(25, 60, 9, 1))
+names(res2560)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
+res2560
+ggplot ()+ geom_line (data = res2560, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+  geom_line (data = res2560, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+  geom_line (data = res2560, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
+  geom_line (data = res2560, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
+  geom_line (data = res2560, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
+  geom_line (data = res2560, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
+
+res6025 <- cbind (c(-5, -1, 0, 1, 5), get_power(60, 25, 1, 1), get_power(60, 25, 3, 1), get_power(60, 25, 9, 1))
+names(res6025)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
+res6025
+ggplot ()+ geom_line (data = res6025, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+  geom_line (data = res6025, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+  geom_line (data = res6025, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
+  geom_line (data = res6025, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
+  geom_line (data = res6025, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
+  geom_line (data = res6025, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
+
+res6060 <- cbind (c(-5, -1, 0, 1, 5), get_power(60, 60, 1, 1), get_power(60, 60, 3, 1), get_power(60, 60, 9, 1))
+names(res6060)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
+res6060
+ggplot ()+ geom_line (data = res6060, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+  geom_line (data = res6060, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+  geom_line (data = res6060, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
+  geom_line (data = res6060, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
+  geom_line (data = res6060, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
+  geom_line (data = res6060, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
+
+```
