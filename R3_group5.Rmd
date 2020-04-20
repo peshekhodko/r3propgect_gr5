@@ -277,3 +277,85 @@ ggplot ()+ geom_line (data = res6060, aes (x = mu_dif, y = pwr_eq_sigma1_1), col
   geom_line (data = res6060, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
 
 ```
+
+#Laura's code:
+
+```{r}
+alpha = 0.05
+N = 1000
+n1 = c(10,25,60) 
+n2 = c(10,25,60)
+var1 = c(1,3,9)
+var2 = 1
+mu1 = 0 
+mu2 = c(-5,-1,0,1,5)
+
+for (d in 1:length(n2)){
+for (c in 1:length(n1)){
+
+for (b in 1:length(var1)){
+  
+tmp_pwr <- c()
+tmp_mu_diff <- c ()
+
+tmp_pwr2 <- c()
+tmp_mu_diff2 <- c()
+
+for (a in 1:length(mu2)){
+
+#Equal Variances
+sample1<-replicate(N, rnorm(n1[c], mean=mu1, sd=sqrt(var1[b])))
+sample2<-replicate(N, rnorm(n2[d], mean=mu2[a], sd=sqrt(var2)))
+
+pValues<-c()
+
+for (i in 1:N){
+  pValues[i]<- t.test(sample1[,i], sample2[,i], var.equal = TRUE, conf.level = 0.95)$p.value
+}
+
+accept <- 0
+cutoff <- alpha
+
+for (i in 1:N){
+  if (pValues[i] <= cutoff){
+    accept <- accept + 1
+  }
+}
+
+pwr <- accept/N
+
+tmp_pwr <- append  (tmp_pwr, pwr)
+
+#Unequal Variances
+pValues<-c()
+
+for (i in 1:N){
+  pValues[i]<- t.test(sample1[,i], sample2[,i], var.equal = FALSE, conf.level = 0.95)$p.value
+}
+
+accept <- 0
+cutoff <- alpha
+
+for (i in 1:N){
+  if (pValues[i] <= cutoff){
+    accept <- accept + 1
+  }
+}
+
+pwr2 <- accept/N
+
+tmp_pwr2 <- append  (tmp_pwr2, pwr2)
+
+}#end for a
+
+title<-c("equal variance",var1[b], n1[c], n2[d])
+Title<-toString(title)
+plot(mu2, tmp_pwr, type = "l", main = Title)
+
+title2<-c("unequal variance",var1[b], n1[c], n2[d])
+Title2<-toString(title2)
+plot(mu2, tmp_pwr2, type = "l", main = Title2)
+
+}#end for b
+}#end for c
+}#end for d
