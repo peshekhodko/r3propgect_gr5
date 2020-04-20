@@ -264,6 +264,8 @@ ggplot ()+ geom_line (data = res6060, aes (x = mu_dif, y = pwr_eq_sigma1_1), col
 
 ```
 
+#Laura's code:
+
 ```{r}
 alpha = 0.05
 N = 1000
