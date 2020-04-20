@@ -11,6 +11,7 @@ output: pdf_document
 library(dplyr)
 library (ggplot2)
 library (gridExtra)
+library (EnvStats)
 ```
 
 # First part
@@ -33,7 +34,7 @@ equal.var.test <- t.test( MPG~Country, data = data, var.equal=TRUE, conf.level=0
 equal.var.test
 ```
 
-Based on the equal variance t.test **p-value=`r equal.var.test$p.value`**, we can reject the null hypothesis. 
+Based on the equal variance t.test **p-value=`r equal.var.test$p.value`** is small (less then cut off 5%), we can reject the null hypothesis. 
 
 T-test with unequal variance: 
 
@@ -42,12 +43,17 @@ unequal.var.test <- t.test( MPG~Country, data = data, var.equal=FALSE, conf.leve
 unequal.var.test
 ```
 
-Based on the unequal variance t.test **p-value=`r unequal.var.test$p.value`**, we also can reject the null hypothesis. 
+Based on the unequal variance t.test **p-value=`r unequal.var.test$p.value`** is small (less then cut off 5%), we also can reject the null hypothesis. 
 
 ## 1.3. How well the normality assumption met by the data
 
-Checking data normality
+To test data for normality we will use 2 methods:
 
+- Compare histogram of the data to a normal probability curve
+- Quantile-quantile plot
+- Goodness of fit
+
+First, split up data in two data sets based on the country. 
 ```{r message=FALSE}
 us <- filter(data, Country == "US")
 japan <- filter(data, Country == "Japan")
@@ -62,6 +68,14 @@ hist_jpn <- ggplot (japan, aes(MPG))+geom_histogram(aes(y=..density..),colour="b
   stat_function(fun=dnorm, args = list (mean = mean(japan$MPG), sd=sd(japan$MPG)), colour = "red")
 qq_jpn <- ggplot(japan, aes(sample = MPG))+stat_qq()+stat_qq_line()
 grid.arrange(hist_jpn, qq_jpn, ncol=1, nrow=2)
+```
+
+
+Goodness of fit tests
+
+```{r}
+gofTest(us, distribution = "norm")
+gofTest(japan, distribution = "norm")
 ```
 
 
