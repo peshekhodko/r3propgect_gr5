@@ -58,7 +58,7 @@ First, split up data in two data sets based on the country.
 us <- filter(data, Country == "US")
 japan <- filter(data, Country == "Japan")
 
-par(mfrow=c(2,2))
+#par(mfrow=c(2,2))
 hist_us<- ggplot (us, aes(MPG))+geom_histogram(aes(y=..density..),colour="black", fill = "white") + 
   stat_function(fun=dnorm, args = list (mean = mean(us$MPG), sd=sd(us$MPG)), colour = "red")
 qq_us <- ggplot(us, aes(sample = MPG))+stat_qq()+stat_qq_line()
@@ -81,281 +81,212 @@ gofTest(japan, distribution = "norm")
 
 ## 1.4. Preferable test for selected dataset
 
+
+
+
 # Second part
 
 
 
 ```{r}
-
-
-get_power <- function (n1, n2, var1, var2) {
+get_power <- function (n1, n2) {
   
   alpha = 0.05
   N = 1000
   mu_1 = -5
   mu_2 = 0
   mu1_mu2 = -5
-  A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-  B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
   
-  pvalues_eq <- c()
-  pvalues_noteq <- c()
+  mu_diffs <- c (-5, -1, 0, 1, 5)
+  mu_1_all <- c (-5, -1, 0, 1, 5)
   pwr_eq_sigma <- c()
   pwr_noteq_sigma <- c()
+  res <- data.frame(cbind(mu_1_all))
+  var_all <- c (1,3,9)
   
-  for (col in 1:ncol(A_sample)) {
-  pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
-                                           conf.level = 0.95)$p.value )
-  pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                 conf.level = 0.95)$p.value )}
-  
-  pwr_eq_sigma <- append (pwr_eq_sigma, sum (pvalues_eq < alpha)/N)
-  pwr_noteq_sigma <-append (pwr_noteq_sigma,  sum (pvalues_noteq < alpha)/N )
-
-  
-  mu_1 = -1
-  mu_2 = 0
-  mu1_mu2 = -1
-  A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-  B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-  pvalues_eq <- c()
-  pvalues_noteq <- c()
-  for (col in 1:ncol(A_sample)) {
-  pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
-                                           conf.level = 0.95)$p.value )
-  pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                 conf.level = 0.95)$p.value )}
-  pwr_eq_sigma <- append (pwr_eq_sigma, sum (pvalues_eq < alpha)/N)
-  pwr_noteq_sigma <-append (pwr_noteq_sigma,  sum (pvalues_noteq < alpha)/N )
-
-  #Added this section
-  mu_1 = 0
-  mu_2 = 0
-  mu1_mu2 = 0
-  A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-  B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-  pvalues_eq <- c()
-  pvalues_noteq <- c()
-  for (col in 1:ncol(A_sample)) {
-    pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
-                                             conf.level = 0.95)$p.value )
-    pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                   conf.level = 0.95)$p.value )}
-  pwr_eq_sigma <- append (pwr_eq_sigma, sum (pvalues_eq < alpha)/N)
-  pwr_noteq_sigma <-append (pwr_noteq_sigma,  sum (pvalues_noteq < alpha)/N )
-  
-  mu_1 = 1
-  mu_2 = 0
-  mu1_mu2 = 1
-  A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-  B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-  pvalues_eq <- c()
-  pvalues_noteq <- c()
-  for (col in 1:ncol(A_sample)) {
-  pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
-                                           conf.level = 0.95)$p.value )
-  pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                 conf.level = 0.95)$p.value )}
-  pwr_eq_sigma <- append (pwr_eq_sigma, sum (pvalues_eq < alpha)/N)
-  pwr_noteq_sigma <-append (pwr_noteq_sigma,  sum (pvalues_noteq < alpha)/N )
-  pwr_eq_sigma
-  pwr_noteq_sigma
-  
-  mu_1 = 5
-  mu_2 = 0
-  mu1_mu2 = 5
-  A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1, sd = sqrt (var1))) )
-  B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = mu_2, sd = sqrt (var2))) )
-  pvalues_eq <- c()
-  pvalues_noteq <- c()
-  for (col in 1:ncol(A_sample)) {
-  pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], var.equal=TRUE, 
-                                           conf.level = 0.95)$p.value )
-  pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], var.equal=FALSE, 
-                                                 conf.level = 0.95)$p.value )}
-  pwr_eq_sigma <- append (pwr_eq_sigma, sum (pvalues_eq < alpha)/N)
-  pwr_noteq_sigma <-append (pwr_noteq_sigma,  sum (pvalues_noteq < alpha)/N )
-  pwr_eq_sigma
-  pwr_noteq_sigma
-  
-  return (as.data.frame(cbind (pwr_eq_sigma, pwr_noteq_sigma)))
+  for (k in 1:length (var_all)) {
+    
+     pwr_eq_sigma <- c()
+     pwr_noteq_sigma <- c()
+     
+     for (j in 1:length(mu_1_all)) {
+     pvalues_eq <- c()
+     pvalues_noteq <- c()
+    
+     A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1_all[j], sd = sqrt (var_all[k]))) )
+     B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = 0, sd = sqrt (1))) )
+        for (col in 1:ncol(A_sample)) {
+           pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], 
+                                                    var.equal=TRUE, conf.level = 0.95)$p.value )
+           pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], 
+                                                          var.equal=FALSE, conf.level = 0.95)$p.value ) }
+           pwr_eq_sigma <- append (pwr_eq_sigma, sum (pvalues_eq < alpha)/N)
+           pwr_noteq_sigma <-append (pwr_noteq_sigma,  sum (pvalues_noteq < alpha)/N )
+        }
+        res <- cbind(res, as.data.frame(cbind(pwr_eq_sigma,  pwr_noteq_sigma)))
+  }
+  names(res)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", 
+                  "pwr_eq_sigma3_1", "pwr_noteq_sigma3_1", "pwr_eq_sigma9_1",
+                  "pwr_noteq_sigma9_1")
+  return (res)
 }
+  
+ 
+ 
+data_n10_n10 <-get_power(10, 10)
+data_n10_n25 <-get_power(10, 25)
+data_n10_n60 <-get_power(10, 60)
+data_n25_n10 <-get_power(25, 10)
+data_n25_n25 <-get_power(25, 25)
+data_n25_n60 <-get_power(25, 60)
+data_n60_n10 <-get_power (60,10)
+data_n60_n25 <-get_power(60, 25)
+data_n60_n60 <-get_power(60, 60)
 
-#Added mu1 - mu2 = 0
-res <- cbind (c(-5, -1, 0, 1, 5), get_power(10, 10, 1, 1), get_power(10, 10, 3, 1), get_power(10, 10, 9, 1))
-names(res)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
-res
-ggplot ()+ geom_line (data = res, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-          geom_line (data = res, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-          geom_line (data = res, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
-          geom_line (data = res, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
-          geom_line (data = res, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
-          geom_line (data = res, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
+plot10_10<- ggplot ()+ geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+           geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+           geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
+           geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
+           geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
+           geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
+           #+theme(legend.position="top") , linetype = "dashed"
+plot10_25<- ggplot ()+ geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+           geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+           geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
+           geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
+           geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
+           geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
+plot10_60<- ggplot ()+ geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+           geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+           geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
+           geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
+           geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
+           geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
+plot25_10 <-ggplot ()+ geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+           geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+           geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
+           geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
+           geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
+           geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
+plot25_25<-ggplot ()+ geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+           geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+           geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
+           geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
+           geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
+           geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
+plot25_60<-ggplot ()+ geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+           geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+           geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
+           geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
+           geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
+           geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
+
+
+plot60_10<-ggplot ()+ geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+           geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+           geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
+           geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
+           geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
+           geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
+plot60_25<-ggplot ()+ geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+           geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+           geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
+           geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
+           geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
+           geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
+plot60_60 <- ggplot ()+ geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
+           geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
+           geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
+           geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
+           geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
+           geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
+
+
+grid.arrange(plot10_10, plot10_25, plot10_60, ncol=2, nrow=2) 
+grid.arrange(plot25_10, plot25_25, plot25_60, ncol=2, nrow=2)
+grid.arrange(plot60_10, plot60_25, plot60_60, ncol=2, nrow=2)
   
 ```
 
-The rest of the combinations. I messed with some of the naming just to keep things seperate for each
-```{r}
-res1025 <- cbind (c(-5, -1, 0, 1, 5), get_power(10, 25, 1, 1), get_power(10, 25, 3, 1), get_power(10, 25, 9, 1))
-names(res1025)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
-res1025
-ggplot ()+ geom_line (data = res1025, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-  geom_line (data = res1025, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-  geom_line (data = res1025, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
-  geom_line (data = res1025, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
-  geom_line (data = res1025, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
-  geom_line (data = res1025, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
-
-res1060 <- cbind (c(-5, -1, 0, 1, 5), get_power(10, 60, 1, 1), get_power(10, 10, 3, 1), get_power(10, 60, 9, 1))
-names(res1060)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
-res1060
-ggplot ()+ geom_line (data = res1060, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-  geom_line (data = res1060, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-  geom_line (data = res1060, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
-  geom_line (data = res1060, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
-  geom_line (data = res1060, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
-  geom_line (data = res1060, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
-
-res2510 <- cbind (c(-5, -1, 0, 1, 5), get_power(25, 10, 1, 1), get_power(25, 10, 3, 1), get_power(25, 10, 9, 1))
-names(res2510)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
-res2510
-ggplot ()+ geom_line (data = res2510, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-  geom_line (data = res2510, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-  geom_line (data = res2510, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
-  geom_line (data = res2510, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
-  geom_line (data = res2510, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
-  geom_line (data = res2510, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
-
-res6010 <- cbind (c(-5, -1, 0, 1, 5), get_power(60, 10, 1, 1), get_power(60, 10, 3, 1), get_power(60, 10, 9, 1))
-names(res6010)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
-res6010
-ggplot ()+ geom_line (data = res6010, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-  geom_line (data = res6010, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-  geom_line (data = res6010, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
-  geom_line (data = res6010, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
-  geom_line (data = res6010, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
-  geom_line (data = res6010, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
-
-res2525 <- cbind (c(-5, -1, 0, 1, 5), get_power(25, 25, 1, 1), get_power(25, 25, 3, 1), get_power(25, 25, 9, 1))
-names(res2525)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
-res2525
-ggplot ()+ geom_line (data = res2525, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-  geom_line (data = res2525, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-  geom_line (data = res2525, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
-  geom_line (data = res2525, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
-  geom_line (data = res2525, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
-  geom_line (data = res2525, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
-
-res2560 <- cbind (c(-5, -1, 0, 1, 5), get_power(25, 60, 1, 1), get_power(25, 60, 3, 1), get_power(25, 60, 9, 1))
-names(res2560)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
-res2560
-ggplot ()+ geom_line (data = res2560, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-  geom_line (data = res2560, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-  geom_line (data = res2560, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
-  geom_line (data = res2560, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
-  geom_line (data = res2560, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
-  geom_line (data = res2560, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
-
-res6025 <- cbind (c(-5, -1, 0, 1, 5), get_power(60, 25, 1, 1), get_power(60, 25, 3, 1), get_power(60, 25, 9, 1))
-names(res6025)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
-res6025
-ggplot ()+ geom_line (data = res6025, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-  geom_line (data = res6025, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-  geom_line (data = res6025, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
-  geom_line (data = res6025, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
-  geom_line (data = res6025, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
-  geom_line (data = res6025, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
-
-res6060 <- cbind (c(-5, -1, 0, 1, 5), get_power(60, 60, 1, 1), get_power(60, 60, 3, 1), get_power(60, 60, 9, 1))
-names(res6060)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", "pwr_eq_sigma1_3", "pwr_noteq_sigma1_3", "pwr_eq_sigma1_9", "pwr_noteq_sigma1_9")
-res6060
-ggplot ()+ geom_line (data = res6060, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-  geom_line (data = res6060, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-  geom_line (data = res6060, aes (x = mu_dif, y = pwr_eq_sigma1_3), color = "green") +
-  geom_line (data = res6060, aes (x = mu_dif, y = pwr_noteq_sigma1_3), color = "black")+
-  geom_line (data = res6060, aes (x = mu_dif, y = pwr_eq_sigma1_9), color = "grey") +
-  geom_line (data = res6060, aes (x = mu_dif, y = pwr_noteq_sigma1_9), color = "brown")
-
-```
 
 #Laura's code:
 
 ```{r}
-alpha = 0.05
-N = 1000
-n1 = c(10,25,60) 
-n2 = c(10,25,60)
-var1 = c(1,3,9)
-var2 = 1
-mu1 = 0 
-mu2 = c(-5,-1,0,1,5)
+# alpha = 0.05
+# N = 1000
+# n1 = c(10,25,60) 
+# n2 = c(10,25,60)
+# var1 = c(1,3,9)
+# var2 = 1
+# mu1 = 0 
+# mu2 = c(-5,-1,0,1,5)
+# 
+# for (d in 1:length(n2)){
+# for (c in 1:length(n1)){
+# 
+# for (b in 1:length(var1)){
+#   
+# tmp_pwr <- c()
+# tmp_mu_diff <- c ()
+# 
+# tmp_pwr2 <- c()
+# tmp_mu_diff2 <- c()
+# 
+# for (a in 1:length(mu2)){
+# 
+# #Equal Variances
+# sample1<-replicate(N, rnorm(n1[c], mean=mu1, sd=sqrt(var1[b])))
+# sample2<-replicate(N, rnorm(n2[d], mean=mu2[a], sd=sqrt(var2)))
+# 
+# pValues<-c()
+# 
+# for (i in 1:N){
+#   pValues[i]<- t.test(sample1[,i], sample2[,i], var.equal = TRUE, conf.level = 0.95)$p.value
+# }
+# 
+# accept <- 0
+# cutoff <- alpha
+# 
+# for (i in 1:N){
+#   if (pValues[i] <= cutoff){
+#     accept <- accept + 1
+#   }
+# }
+# 
+# pwr <- accept/N
+# 
+# tmp_pwr <- append  (tmp_pwr, pwr)
+# 
+# #Unequal Variances
+# pValues<-c()
+# 
+# for (i in 1:N){
+#   pValues[i]<- t.test(sample1[,i], sample2[,i], var.equal = FALSE, conf.level = 0.95)$p.value
+# }
+# 
+# accept <- 0
+# cutoff <- alpha
+# 
+# for (i in 1:N){
+#   if (pValues[i] <= cutoff){
+#     accept <- accept + 1
+#   }
+# }
+# 
+# pwr2 <- accept/N
+# 
+# tmp_pwr2 <- append  (tmp_pwr2, pwr2)
+# 
+# }#end for a
+# 
+# title<-c("equal variance",var1[b], n1[c], n2[d])
+# Title<-toString(title)
+# plot(mu2, tmp_pwr, type = "l", main = Title)
+# 
+# title2<-c("unequal variance",var1[b], n1[c], n2[d])
+# Title2<-toString(title2)
+# plot(mu2, tmp_pwr2, type = "l", main = Title2)
 
-for (d in 1:length(n2)){
-for (c in 1:length(n1)){
-
-for (b in 1:length(var1)){
-  
-tmp_pwr <- c()
-tmp_mu_diff <- c ()
-
-tmp_pwr2 <- c()
-tmp_mu_diff2 <- c()
-
-for (a in 1:length(mu2)){
-
-#Equal Variances
-sample1<-replicate(N, rnorm(n1[c], mean=mu1, sd=sqrt(var1[b])))
-sample2<-replicate(N, rnorm(n2[d], mean=mu2[a], sd=sqrt(var2)))
-
-pValues<-c()
-
-for (i in 1:N){
-  pValues[i]<- t.test(sample1[,i], sample2[,i], var.equal = TRUE, conf.level = 0.95)$p.value
-}
-
-accept <- 0
-cutoff <- alpha
-
-for (i in 1:N){
-  if (pValues[i] <= cutoff){
-    accept <- accept + 1
-  }
-}
-
-pwr <- accept/N
-
-tmp_pwr <- append  (tmp_pwr, pwr)
-
-#Unequal Variances
-pValues<-c()
-
-for (i in 1:N){
-  pValues[i]<- t.test(sample1[,i], sample2[,i], var.equal = FALSE, conf.level = 0.95)$p.value
-}
-
-accept <- 0
-cutoff <- alpha
-
-for (i in 1:N){
-  if (pValues[i] <= cutoff){
-    accept <- accept + 1
-  }
-}
-
-pwr2 <- accept/N
-
-tmp_pwr2 <- append  (tmp_pwr2, pwr2)
-
-}#end for a
-
-title<-c("equal variance",var1[b], n1[c], n2[d])
-Title<-toString(title)
-plot(mu2, tmp_pwr, type = "l", main = Title)
-
-title2<-c("unequal variance",var1[b], n1[c], n2[d])
-Title2<-toString(title2)
-plot(mu2, tmp_pwr2, type = "l", main = Title2)
-
-}#end for b
-}#end for c
-}#end for d
+#}#end for b
+#}#end for c
+#}#end for d
