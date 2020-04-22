@@ -12,6 +12,7 @@ library(dplyr)
 library (ggplot2)
 library (gridExtra)
 library (EnvStats)
+library(ggpubr)
 ```
 
 # First part
@@ -113,13 +114,14 @@ get_power <- function (n1, n2) {
      pvalues_eq <- c()
      pvalues_noteq <- c()
     
-     A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1_all[j], sd = sqrt (var_all[k]))) )
+     A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1_all[j], 
+                                                      sd = sqrt (var_all[k]))) )
      B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = 0, sd = sqrt (1))) )
         for (col in 1:ncol(A_sample)) {
            pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], 
-                                                    var.equal=TRUE, conf.level = 0.95)$p.value )
+                                            var.equal=TRUE, conf.level = 0.95)$p.value )
            pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], 
-                                                          var.equal=FALSE, conf.level = 0.95)$p.value ) }
+                                                  var.equal=FALSE, conf.level = 0.95)$p.value ) }
            pwr_eq_sigma <- append (pwr_eq_sigma, sum (pvalues_eq < alpha)/N)
            pwr_noteq_sigma <-append (pwr_noteq_sigma,  sum (pvalues_noteq < alpha)/N )
         }
@@ -131,8 +133,6 @@ get_power <- function (n1, n2) {
   return (res)
 }
   
- 
- 
 data_n10_n10 <-get_power(10, 10)
 data_n10_n25 <-get_power(10, 25)
 data_n10_n60 <-get_power(10, 60)
@@ -143,68 +143,102 @@ data_n60_n10 <-get_power (60,10)
 data_n60_n25 <-get_power(60, 25)
 data_n60_n60 <-get_power(60, 60)
 
-plot10_10<- ggplot ()+ geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-           geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-           geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
-           geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
-           geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
-           geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
-           #+theme(legend.position="top") , linetype = "dashed"
-plot10_25<- ggplot ()+ geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-           geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-           geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
-           geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
-           geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
-           geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
-plot10_60<- ggplot ()+ geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-           geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-           geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
-           geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
-           geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
-           geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
-plot25_10 <-ggplot ()+ geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-           geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-           geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
-           geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
-           geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
-           geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
-plot25_25<-ggplot ()+ geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-           geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-           geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
-           geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
-           geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
-           geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
-plot25_60<-ggplot ()+ geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-           geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-           geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
-           geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
-           geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
-           geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
 
 
-plot60_10<-ggplot ()+ geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-           geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-           geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
-           geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
-           geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
-           geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
-plot60_25<-ggplot ()+ geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-           geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-           geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
-           geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
-           geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
-           geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
-plot60_60 <- ggplot ()+ geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_eq_sigma1_1), color = "blue") +
-           geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_noteq_sigma1_1), color = "red") +
-           geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_eq_sigma3_1), color = "green") +
-           geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_noteq_sigma3_1), color = "black")+
-           geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_eq_sigma9_1), color = "grey") +
-           geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_noteq_sigma9_1), color = "brown")
+plot10_10<- ggplot ()+ geom_line (data = data_n10_n10, aes (x = mu_dif, 
+                                  y = pwr_eq_sigma1_1, color = "Var1=1, Var2=1")) +
+geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_noteq_sigma1_1, 
+                                  color = "Var1=1, Var2=1"), linetype="dotted") +
+geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_eq_sigma3_1, 
+                                  color = "Var1=3, Var2=1")) +
+geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_noteq_sigma3_1, 
+                                  color = "Var1=3, Var2=1"),  linetype="dotted")+
+geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_eq_sigma9_1, 
+                                  color = "Var1=9, Var2=1")) +
+geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_noteq_sigma9_1, 
+                                     color = "Var1=9, Var2=1"), linetype="dotted") +
+scale_color_discrete("n1 = 10, n2 = 10")+xlab("Mu1-Mu2")+ylab("Power") 
+ 
+plot10_25<- ggplot ()+ geom_line (data = data_n10_n25, aes (x = mu_dif, 
+                                  y = pwr_eq_sigma1_1, color = "Var1=1, Var2 = 1")) +
+geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_noteq_sigma1_1, color = "Var1=1, Var2=1"), 
+           linetype="dotted") +
+geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_eq_sigma3_1, color = "Var1=3, Var2=1")) +
+geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_noteq_sigma3_1, color = "Var1=3, Var2=1"),  
+           linetype="dotted")+
+geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_eq_sigma9_1, color = "Var1=9, Var2=1")) +
+geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_noteq_sigma9_1, color = "Var1=9, Var2=1"),  
+           linetype="dotted") +
+scale_color_discrete("n1 = 10, n2 = 25")+xlab("Mu1-Mu2")+ylab("Power") 
+
+plot10_60<- ggplot ()+ geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_eq_sigma1_1,  
+                                                            color = "Var1=1, Var2 = 1")) +
+geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_noteq_sigma1_1, color = "Var1=1, Var2=1"), 
+           linetype="dotted") +
+geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_eq_sigma3_1, color = "Var1=3, Var2=1")) +
+geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_noteq_sigma3_1, color = "Var1=3, Var2=1"),  
+           linetype="dotted")+
+geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_eq_sigma9_1, color = "Var1=9, Var2=1")) +
+geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_noteq_sigma9_1, color = "Var1=9, Var2=1"),  
+           linetype="dotted") +
+scale_color_discrete("n1 = 10, n2 = 60")+xlab("Mu1-Mu2")+ylab("Power") 
+
+plot25_10 <-ggplot ()+ geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_eq_sigma1_1,  color = "Var1=1, Var2 = 1")) +
+           geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_noteq_sigma1_1, color = "Var1=1, Var2=1"), linetype="dotted") +
+           geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_eq_sigma3_1, color = "Var1=3, Var2=1")) +
+           geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_noteq_sigma3_1, color = "Var1=3, Var2=1"),  linetype="dotted")+
+           geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_eq_sigma9_1, color = "Var1=9, Var2=1")) +
+           geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_noteq_sigma9_1, color = "Var1=9, Var2=1"),  linetype="dotted") +
+scale_color_discrete("n1 = 25, n2 = 10")+xlab("Mu1-Mu2")+ylab("Power") 
+
+plot25_25<-ggplot ()+ geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_eq_sigma1_1,  color = "Var1=1, Var2 = 1")) +
+           geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_noteq_sigma1_1, color = "Var1=1, Var2=1"), linetype="dotted") +
+           geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_eq_sigma3_1, color = "Var1=3, Var2=1")) +
+           geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_noteq_sigma3_1, color = "Var1=3, Var2=1"),  linetype="dotted")+
+           geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_eq_sigma9_1, color = "Var1=9, Var2=1")) +
+           geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_noteq_sigma9_1, color = "Var1=9, Var2=1"),  linetype="dotted") +
+scale_color_discrete("n1 = 25, n2 = 25")+xlab("Mu1-Mu2")+ylab("Power") 
+
+plot25_60<-ggplot ()+ geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_eq_sigma1_1,  color = "Var1=1, Var2 = 1")) +
+           geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_noteq_sigma1_1, color = "Var1=1, Var2=1"), linetype="dotted") +
+           geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_eq_sigma3_1, color = "Var1=3, Var2=1")) +
+           geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_noteq_sigma3_1, color = "Var1=3, Var2=1"),  linetype="dotted")+
+           geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_eq_sigma9_1, color = "Var1=9, Var2=1")) +
+           geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_noteq_sigma9_1, color = "Var1=9, Var2=1"),  linetype="dotted") +
+scale_color_discrete("n1 = 25, n2 = 60")+xlab("Mu1-Mu2")+ylab("Power") 
 
 
-grid.arrange(plot10_10, plot10_25, plot10_60, ncol=2, nrow=2) 
-grid.arrange(plot25_10, plot25_25, plot25_60, ncol=2, nrow=2)
-grid.arrange(plot60_10, plot60_25, plot60_60, ncol=2, nrow=2)
+plot60_10<-ggplot ()+ geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_eq_sigma1_1,  color = "Var1=1, Var2 = 1")) +
+           geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_noteq_sigma1_1, color = "Var1=1, Var2=1"), linetype="dotted") +
+           geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_eq_sigma3_1, color = "Var1=3, Var2=1")) +
+           geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_noteq_sigma3_1, color = "Var1=3, Var2=1"),  linetype="dotted")+
+           geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_eq_sigma9_1, color = "Var1=9, Var2=1")) +
+           geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_noteq_sigma9_1, color = "Var1=9, Var2=1"),  linetype="dotted") +
+scale_color_discrete("n1 = 60, n2 = 10")+xlab("Mu1-Mu2")+ylab("Power") 
+
+plot60_25<-ggplot ()+ geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_eq_sigma1_1,  color = "Var1=1, Var2 = 1")) +
+           geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_noteq_sigma1_1, color = "Var1=1, Var2=1"), linetype="dotted") +
+           geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_eq_sigma3_1, color = "Var1=3, Var2=1")) +
+           geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_noteq_sigma3_1, color = "Var1=3, Var2=1"),  linetype="dotted")+
+           geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_eq_sigma9_1, color = "Var1=9, Var2=1")) +
+           geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_noteq_sigma9_1, color = "Var1=9, Var2=1"),  linetype="dotted") +
+scale_color_discrete("n1 = 60, n2 = 25")+xlab("Mu1-Mu2")+ylab("Power") 
+
+plot60_60 <- ggplot ()+ geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_eq_sigma1_1,  color = "Var1=1, Var2 = 1")) +
+           geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_noteq_sigma1_1, color = "Var1=1, Var2=1"), linetype="dotted") +
+           geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_eq_sigma3_1, color = "Var1=3, Var2=1")) +
+           geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_noteq_sigma3_1, color = "Var1=3, Var2=1"),  linetype="dotted")+
+           geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_eq_sigma9_1, color = "Var1=9, Var2=1")) +
+           geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_noteq_sigma9_1, color = "Var1=9, Var2=1"),  linetype="dotted") +
+scale_color_discrete("n1 = 60, n2 = 60")+xlab("Mu1-Mu2")+ylab("Power") 
+
+
+grid.arrange(plot10_10, plot10_25, plot10_60, ncol=1, nrow=3, 
+left ="Dotted lines - Power for the Unequal Varince Test \n Solid lines - Power for Equal Variance Test") 
+grid.arrange(plot25_10, plot25_25, plot25_60, ncol=1, nrow=3, 
+left ="Dotted lines - Power for the Unequal Varince Test \n Solid lines - Power for Equal Variance Test")
+grid.arrange(plot60_10, plot60_25, plot60_60, ncol=1, nrow=3, 
+left ="Dotted lines - Power for the Unequal Varince Test \n Solid lines - Power for Equal Variance Test")
   
 ```
 
