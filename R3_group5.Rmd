@@ -112,7 +112,7 @@ Given that the data is violate the normality assumption, there are two options:
 ## Purpose
 
 The goal of this simulation - analyze performance of the two tests in terms of controlling $\alpha$ and having larger power 
-as vary true variances, sample sizes and true means differences. We will get empirical power by simulation as a function of different 
+while varying true variances, sample sizes and true means differences. We will get empirical power by simulation as a function of different 
 combinations of $\mu$ differences, different variances and sample size.
 
 ## Design
@@ -124,11 +124,10 @@ $n_1$ = 10, 25, 60     $n_2$=10,25,60   \
 $\mu_1-\mu_2$ = -5, -1, 0, 1, 5         \
 $N$=10000                               \
 
-Under each combination we will generate sample under $H_A$ N time. Then we will perform t.tests for equal and unequal variances and 
-calculate number of time $H_0$ is regected. Empirical power for both tests will be calculated and analyzed.
+Under each combination we will generate a sample under $H_A$ N times. Then we will perform t.tests for equal and unequal variances and 
+calculate number of times $H_0$ is rejected. Empirical power for both tests will be calculated and analyzed.
 
-Since we need to simulate data as a function of different combination of several parameters and make some manipulations with this data, 
-function for power calculations is created.
+Since we need to simulate data as a function of different combination of several parameters and make some manipulations with this data, a function for power calculations is created.
 
 ```{r}
 get_power <- function (n1, n2) {
@@ -185,7 +184,7 @@ data_n10_n60 <-get_power(10, 60)
 data_n25_n10 <-get_power(25, 10)
 data_n25_n25 <-get_power(25, 25)
 data_n25_n60 <-get_power(25, 60)
-data_n60_n10 <-get_power(60,10)
+data_n60_n10 <-get_power(60, 10)
 data_n60_n25 <-get_power(60, 25)
 data_n60_n60 <-get_power(60, 60)
 ```
@@ -336,3 +335,6 @@ Power for Equal Variance Test")
 
 ## Conclusion
 
+The results from the power analysis indicate that the t.tests take into account the absolute value of the difference in means between the two sample populations both when the variances are equal and not equal. This is shown by the fact that each of the graphs is symmetrical around mu1-mu2=0. 
+The relationship between the difference in means and the difference in variance is that as the difference in variances between the sample populations increases it takes and larger absolute value of the difference in means to raise the power. This can be seen for both the equal variance t.test and the unequal t.test, though the uneual test does increase the power faster than the equal one.
+The impact that sample size has on the t.tests are that as the sample size increases so does the rate in which power is increased. The tests for both the equal and unequal variances give very similar results when the sample size, n, is equal. The reason for this is that when the n's are equal the fraction for the denominator for the t.tests are much closer to each other as in equal variance: sqrt((sp^2/n1)+(sp^2/n2)) => sqrt((s1^2+s2^2)/2n) and unequal variance: sqrt((s1^2/n1)+(s2^2/n2)) => sqrt((s1^2+s2^2)/2n) which means that the denominator is equal for each of these. So now the variation we see in the plots for these comparisons are from the variability in the data sets generated with these conditions.
