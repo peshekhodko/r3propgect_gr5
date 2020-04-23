@@ -3,7 +3,7 @@ title: "Group 5, R Project 3"
 author: "Kera Whitley, Laura Mathews, Nataliya Peshekhodko"
 date: '`r format(Sys.Date(), "%Y-%B-%d")`'
 
-abstract: "This is abstarct."
+abstract: "This project contains a hypothesis test for the observed data and a simulation study to compare the two hypothesis testing procedures."
 
 output: pdf_document
 ---
@@ -19,7 +19,7 @@ library(ggpubr)
 
 
 ## 1.1. Read data
-Read the data from txt file.
+Read the data from txt file and save it in dataframe.
 
 ```{r}
 data <- read.delim("mpg.txt", header=TRUE, sep=" ")
@@ -28,14 +28,15 @@ data <- read.delim("mpg.txt", header=TRUE, sep=" ")
 
 ## 1.2. Two sample t-test
 
-T-test with equal variance 
+Conduct two sample t-test twice: with equal variance and with unequal veriance.
+T-test with equal variance: 
 
 ```{r}
 equal.var.test <- t.test( MPG~Country, data = data, var.equal=TRUE, conf.level=0.95)
 equal.var.test
 ```
 
-Based on the equal variance t.test **p-value=`r equal.var.test$p.value`** is small (less then cut off 5%), we can reject the null hypothesis. 
+Based on the equal variance t.test **p-value=`r equal.var.test$p.value`** is small (less then 5% cut off), we can reject the null hypothesis. 
 
 T-test with unequal variance: 
 
@@ -44,13 +45,13 @@ unequal.var.test <- t.test( MPG~Country, data = data, var.equal=FALSE, conf.leve
 unequal.var.test
 ```
 
-Based on the unequal variance t.test **p-value=`r unequal.var.test$p.value`** is small (less then cut off 5%), we also can reject the null hypothesis. 
+Based on the unequal variance t.test **p-value=`r unequal.var.test$p.value`** is small (less then 5% cut off), we also can reject the null hypothesis. 
 
 ## 1.3. How well the normality assumption met by the data
 
-To test data for normality we will use 2 methods:
+To test data for normality we will use 3 methods:
 
-- Compare histogram of the data to a normal probability curve
+- Compare histogram of the data to a normal probability curve for the data
 - Quantile-quantile plot
 - Goodness of fit
 
@@ -58,27 +59,44 @@ First, split up data in two data sets based on the country.
 ```{r message=FALSE}
 us <- filter(data, Country == "US")
 japan <- filter(data, Country == "Japan")
+```
 
-#par(mfrow=c(2,2))
+Plot histogram with overlaping normal curve and quantile-quantile plot for the US data.
+
+```{r  message=FALSE}
+# Plot histogram
 hist_us<- ggplot (us, aes(MPG))+geom_histogram(aes(y=..density..),colour="black", fill = "white") + 
   stat_function(fun=dnorm, args = list (mean = mean(us$MPG), sd=sd(us$MPG)), colour = "red")
+# Plot quantile-quantile plot
 qq_us <- ggplot(us, aes(sample = MPG))+stat_qq()+stat_qq_line()
+# Arrange two plots in one grid
 grid.arrange(hist_us, qq_us, ncol=1, nrow=2)
+```
 
+Plot histogram with overlaping normal curve and quantile-quantile plot for the Japan data.
+
+```{r  message=FALSE}
+# Plot histogram
 hist_jpn <- ggplot (japan, aes(MPG))+geom_histogram(aes(y=..density..),colour="black", fill = "white") + 
   stat_function(fun=dnorm, args = list (mean = mean(japan$MPG), sd=sd(japan$MPG)), colour = "red")
+# Plot quantile-quantile plot
 qq_jpn <- ggplot(japan, aes(sample = MPG))+stat_qq()+stat_qq_line()
+# Arrange two plots in one grid
 grid.arrange(hist_jpn, qq_jpn, ncol=1, nrow=2)
 ```
 
+Based on the graphical methods, data does not fit normality well.
 
-Goodness of fit tests
+Apply goodness of fit test to the data:
 
 ```{r}
+# Goodness of fit test
 gofTest(us, distribution = "norm")
 gofTest(japan, distribution = "norm")
 ```
 
+Small p-values for both data mean that can reject the null hypothesis (the data is consistent with normal distribution) and both data sets 
+are not consistent with Normal distribution.
 
 ## 1.4. Preferable test for selected dataset
 
@@ -121,7 +139,7 @@ get_power <- function (n1, n2) {
            pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], 
                                             var.equal=TRUE, conf.level = 0.95)$p.value )
            pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], 
-                                                  var.equal=FALSE, conf.level = 0.95)$p.value ) }
+                                            var.equal=FALSE, conf.level = 0.95)$p.value ) }
            pwr_eq_sigma <- append (pwr_eq_sigma, sum (pvalues_eq < alpha)/N)
            pwr_noteq_sigma <-append (pwr_noteq_sigma,  sum (pvalues_noteq < alpha)/N )
         }
@@ -139,7 +157,7 @@ data_n10_n60 <-get_power(10, 60)
 data_n25_n10 <-get_power(25, 10)
 data_n25_n25 <-get_power(25, 25)
 data_n25_n60 <-get_power(25, 60)
-data_n60_n10 <-get_power (60,10)
+data_n60_n10 <-get_power(60,10)
 data_n60_n25 <-get_power(60, 25)
 data_n60_n60 <-get_power(60, 60)
 
