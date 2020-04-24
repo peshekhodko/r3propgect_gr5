@@ -16,9 +16,9 @@ library(ggpubr)
 
 ### Purpose
 
-The goal of this simulation - analyze performance of the two tests in terms of controlling $\alpha$ and having larger power 
+The goal of this simulation is to analyze performance of the two tests in terms of controlling $\alpha$ and having larger power 
 while varying true variances, sample sizes and true means differences. We got empirical power by simulation as a function of different 
-combinations of $\mu$ differences, different variances and sample size.
+combinations of $\mu$ differences, different variances and sample sizes.
 
 ### Design
 
@@ -32,7 +32,7 @@ $N$=10000                               \
 Under each combination we generated a sample under $H_A$ N times. Then we performed t.tests for equal and unequal variances and 
 calculated number of times $H_0$ is rejected. Empirical power for both tests is calculated and analyzed.
 
-Since we need to simulate data as a function of different combinations of several parameters and make some manipulations with this data, a function for power calculation is created. This function takes a parameter sample sizes $n_1$ and $n_2$.  During our simulation we used to create data for different combinations. 
+Since we need to simulate data as a function of different combinations of several parameters and make some manipulations with this data, a function for power calculation is created. This function takes a parameter sample sizes $n_1$ and $n_2$.  We used while creating data for different combinations. 
 
 ```{r echo = FALSE}
 # Function for power calculation 
@@ -95,8 +95,10 @@ data_n60_n60 <-get_power(60, 60)
 Visualize different combinations of power as function of sample sizes, sample veriances and mean differences. 
 
 ```{r echo = FALSE}
-# To plot each graph use data frame generated for n1, n2 combination
-# Plot power as a function of mu differences
+# to plot each graph use data frame generated for n1, n2 combination
+# use ggplot2 to create line(power~m1-m2) for every variance combination and 
+# specified n1 and n2 values and 
+# create proper legend
 plot10_10<-ggplot()+geom_line (data = data_n10_n10, aes (x = mu_dif, 
                                 y = pwr_eq_sigma1_1, color = "Var1=1, Var2=1")) +
 geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_noteq_sigma1_1, 

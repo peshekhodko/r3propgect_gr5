@@ -10,7 +10,6 @@ library(dplyr)
 library (ggplot2)
 library (gridExtra)
 library (EnvStats)
-library(ggpubr)
 ```
 
 # First part: hypothesis test for the observed data
@@ -29,6 +28,7 @@ Conduct two sample t-test twice: with equal variance and with unequal veriance.
 T-test with equal variance: 
 
 ```{r}
+# Apply equal variance t-test
 equal.var.test <- t.test( MPG~Country, data = data, var.equal=TRUE, conf.level=0.95)
 equal.var.test
 ```
@@ -38,6 +38,7 @@ Based on the equal variance t.test **p-value=`r equal.var.test$p.value`** is sma
 T-test with unequal variance: 
 
 ```{r}
+# Apply unequal variance t-test
 unequal.var.test <- t.test( MPG~Country, data = data, var.equal=FALSE, conf.level = 0.95)
 unequal.var.test
 ```
@@ -100,7 +101,10 @@ are not consistent with Normal distribution.
 
 ## 1.4. Preferable test for selected dataset
 
-Given that the data is violate the normality assumption, there are two options:
-1. We can transform our data so that the data becomes normally ditributed
-2. Run non-parametric test (Mann-Whitney U test) that does not require the assumption of normality.
+Our samples have unequal sizes, so unequal variance test is more preferable here.
+
+We onserved that the data is violate the normality assumption, there are two options:
+
++ We can transform our data so that the data becomes normally ditributed
++ Run non-parametric test (Mann-Whitney U test) that does not require the assumption of normality.
 
