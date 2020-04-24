@@ -1,0 +1,245 @@
+---
+title: "Group 5, R Project 3"
+author: "Kera Whitley, Laura Mathews, Nataliya Peshekhodko"
+date: '`r format(Sys.Date(), "%Y-%B-%d")`'
+
+output: pdf_document
+---
+```{r echo=FALSE, include=FALSE}
+library(dplyr)
+library (ggplot2)
+library (gridExtra)
+library (EnvStats)
+library(ggpubr)
+```
+
+
+### Purpose
+
+The goal of this simulation - analyze performance of the two tests in terms of controlling $\alpha$ and having larger power 
+while varying true variances, sample sizes and true means differences. We got empirical power by simulation as a function of different 
+combinations of $\mu$ differences, different variances and sample size.
+
+### Design
+
+During this simulation next set of combinations were used:
+
+$\sigma_1^2$ = 1,3,9   $\sigma_2^2$ = 1 \
+$n_1$ = 10, 25, 60     $n_2$=10,25,60   \
+$\mu_1-\mu_2$ = -5, -1, 0, 1, 5         \
+$N$=10000                               \
+
+Under each combination we generated a sample under $H_A$ N times. Then we performed t.tests for equal and unequal variances and 
+calculated number of times $H_0$ is rejected. Empirical power for both tests is calculated and analyzed.
+
+Since we need to simulate data as a function of different combinations of several parameters and make some manipulations with this data, a function for power calculation is created. This function takes a parameter sample sizes $n_1$ and $n_2$.  During our simulation we used to create data for different combinations. 
+
+```{r echo = FALSE}
+# Function for power calculation 
+get_power <- function (n1, n2) {
+  # set up all varibales
+  alpha = 0.05
+  N = 10000
+  mu_1_all <- c (-5, -1, 0, 1, 5)
+  pwr_eq_sigma <- c()
+  pwr_noteq_sigma <- c()
+  res <- data.frame(cbind(mu_1_all))
+  var_all <- c (1,3,9)
+  # loop through all variances
+  for (k in 1:length (var_all)) {
+     pwr_eq_sigma <- c()
+     pwr_noteq_sigma <- c()
+      # loop through all mu differences 
+      for (j in 1:length(mu_1_all)) {
+         pvalues_eq <- c()
+         pvalues_noteq <- c()
+         A_sample <- as.data.frame ( replicate (N, rnorm (n1, mean = mu_1_all[j], 
+                                                      sd = sqrt (var_all[k]))) )
+         B_sample <- as.data.frame ( replicate (N, rnorm (n2, mean = 0, sd = sqrt (1))) )
+           for (col in 1:ncol(A_sample)) {
+              # save p-values into vectors
+              pvalues_eq <-append (pvalues_eq, t.test (A_sample[,col], B_sample[,col], 
+                                            var.equal=TRUE, conf.level = 0.95)$p.value )
+              pvalues_noteq <-append( pvalues_noteq, t.test (A_sample[,col], B_sample[,col], 
+                                            var.equal=FALSE, conf.level = 0.95)$p.value ) }
+              # save calculated power for both types of test into vectors
+              pwr_eq_sigma <- append (pwr_eq_sigma, sum (pvalues_eq < alpha)/N)
+              pwr_noteq_sigma <-append (pwr_noteq_sigma,  sum (pvalues_noteq < alpha)/N )
+      }
+        # save all calculated power vectors into dataframe
+        res <- cbind(res, as.data.frame(cbind(pwr_eq_sigma,  pwr_noteq_sigma)))
+  }
+  # name columns 
+  names(res)<- c ("mu_dif", "pwr_eq_sigma1_1", "pwr_noteq_sigma1_1", 
+                  "pwr_eq_sigma3_1", "pwr_noteq_sigma3_1", "pwr_eq_sigma9_1",
+                  "pwr_noteq_sigma9_1")
+  return (res)
+}
+```
+
+## Results
+
+```{r echo = FALSE}
+# Generate data with get_power function for diffrent combinations of n1 and n2
+data_n10_n10 <-get_power(10, 10)
+data_n10_n25 <-get_power(10, 25)
+data_n10_n60 <-get_power(10, 60)
+data_n25_n10 <-get_power(25, 10)
+data_n25_n25 <-get_power(25, 25)
+data_n25_n60 <-get_power(25, 60)
+data_n60_n10 <-get_power(60, 10)
+data_n60_n25 <-get_power(60, 25)
+data_n60_n60 <-get_power(60, 60)
+```
+
+Visualize different combinations of power as function of sample sizes, sample veriances and mean differences. 
+
+```{r echo = FALSE}
+# To plot each graph use data frame generated for n1, n2 combination
+# Plot power as a function of mu differences
+plot10_10<-ggplot()+geom_line (data = data_n10_n10, aes (x = mu_dif, 
+                                y = pwr_eq_sigma1_1, color = "Var1=1, Var2=1")) +
+geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_noteq_sigma1_1, 
+                                  color = "Var1=1, Var2=1"), linetype="dotted") +
+geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_eq_sigma3_1, 
+                                  color = "Var1=3, Var2=1")) +
+geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_noteq_sigma3_1, 
+                                  color = "Var1=3, Var2=1"),  linetype="dotted")+
+geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_eq_sigma9_1, 
+                                  color = "Var1=9, Var2=1")) +
+geom_line (data = data_n10_n10, aes (x = mu_dif, y = pwr_noteq_sigma9_1, 
+                                     color = "Var1=9, Var2=1"), linetype="dotted") +
+scale_color_discrete("n1 = 10, n2 = 10")+xlab("Mu1-Mu2")+ylab("Power") 
+ 
+plot10_25<- ggplot ()+ geom_line (data = data_n10_n25, aes (x = mu_dif, 
+                      y = pwr_eq_sigma1_1, color = "Var1=1, Var2 = 1")) +
+geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_noteq_sigma1_1, 
+                      color = "Var1=1, Var2=1"), linetype="dotted") +
+geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_eq_sigma3_1, 
+                      color = "Var1=3, Var2=1")) +
+geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_noteq_sigma3_1, 
+                      color = "Var1=3, Var2=1"),  
+           linetype="dotted")+
+geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_eq_sigma9_1, 
+                      color = "Var1=9, Var2=1")) +
+geom_line (data = data_n10_n25, aes (x = mu_dif, y = pwr_noteq_sigma9_1, 
+                      color = "Var1=9, Var2=1"),  
+           linetype="dotted") +
+scale_color_discrete("n1 = 10, n2 = 25")+xlab("Mu1-Mu2")+ylab("Power") 
+
+plot10_60<- ggplot ()+ geom_line (data = data_n10_n60, aes (x = mu_dif, 
+                       y = pwr_eq_sigma1_1,color = "Var1=1, Var2 = 1")) +
+geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_noteq_sigma1_1, 
+                       color = "Var1=1, Var2=1"), linetype="dotted") +
+geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_eq_sigma3_1, 
+                       color = "Var1=3, Var2=1")) +
+geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_noteq_sigma3_1, 
+                       color = "Var1=3, Var2=1"),  linetype="dotted")+
+geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_eq_sigma9_1, 
+                       color = "Var1=9, Var2=1")) +
+geom_line (data = data_n10_n60, aes (x = mu_dif, y = pwr_noteq_sigma9_1, 
+                       color = "Var1=9, Var2=1"), linetype="dotted") +
+scale_color_discrete("n1 = 10, n2 = 60")+xlab("Mu1-Mu2")+ylab("Power") 
+
+plot25_10 <-ggplot ()+ geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_eq_sigma1_1,  
+                       color = "Var1=1, Var2 = 1")) +
+geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_noteq_sigma1_1, 
+                       color = "Var1=1, Var2=1"), linetype="dotted") +
+geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_eq_sigma3_1, 
+                       color = "Var1=3, Var2=1")) +
+geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_noteq_sigma3_1, 
+                       color = "Var1=3, Var2=1"),  linetype="dotted")+
+geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_eq_sigma9_1, 
+                       color = "Var1=9, Var2=1")) +
+geom_line (data = data_n25_n10, aes (x = mu_dif, y = pwr_noteq_sigma9_1, 
+                       color = "Var1=9, Var2=1"),  linetype="dotted") +
+scale_color_discrete("n1 = 25, n2 = 10")+xlab("Mu1-Mu2")+ylab("Power") 
+
+plot25_25<-ggplot ()+ geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_eq_sigma1_1,  
+                      color = "Var1=1, Var2 = 1")) +
+geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_noteq_sigma1_1, 
+                      color = "Var1=1, Var2=1"), linetype="dotted") +
+geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_eq_sigma3_1, 
+                      color = "Var1=3, Var2=1")) +
+geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_noteq_sigma3_1, 
+                      color = "Var1=3, Var2=1"),  linetype="dotted")+
+geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_eq_sigma9_1, 
+                      color = "Var1=9, Var2=1")) +
+geom_line (data = data_n25_n25, aes (x = mu_dif, y = pwr_noteq_sigma9_1, 
+                      color = "Var1=9, Var2=1"),  linetype="dotted") +
+scale_color_discrete("n1 = 25, n2 = 25")+xlab("Mu1-Mu2")+ylab("Power") 
+
+plot25_60<-ggplot ()+ geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_eq_sigma1_1,  
+                      color = "Var1=1, Var2 = 1")) +
+geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_noteq_sigma1_1, 
+                      color = "Var1=1, Var2=1"), linetype="dotted") +
+geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_eq_sigma3_1, 
+                      color = "Var1=3, Var2=1")) +
+geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_noteq_sigma3_1, 
+                      color = "Var1=3, Var2=1"),  linetype="dotted")+
+geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_eq_sigma9_1, 
+                      color = "Var1=9, Var2=1")) +
+geom_line (data = data_n25_n60, aes (x = mu_dif, y = pwr_noteq_sigma9_1, 
+                      color = "Var1=9, Var2=1"),  linetype="dotted") +
+scale_color_discrete("n1 = 25, n2 = 60")+xlab("Mu1-Mu2")+ylab("Power") 
+
+
+plot60_10<-ggplot ()+ geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_eq_sigma1_1,  
+                      color = "Var1=1, Var2 = 1")) +
+geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_noteq_sigma1_1, 
+                      color = "Var1=1, Var2=1"), linetype="dotted") +
+geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_eq_sigma3_1, 
+                      color = "Var1=3, Var2=1")) +
+geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_noteq_sigma3_1, 
+                      color = "Var1=3, Var2=1"),  linetype="dotted")+
+geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_eq_sigma9_1, 
+                      color = "Var1=9, Var2=1")) +
+geom_line (data = data_n60_n10, aes (x = mu_dif, y = pwr_noteq_sigma9_1, 
+                      color = "Var1=9, Var2=1"),  linetype="dotted") +
+scale_color_discrete("n1 = 60, n2 = 10")+xlab("Mu1-Mu2")+ylab("Power") 
+
+plot60_25<-ggplot ()+ geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_eq_sigma1_1,  
+                      color = "Var1=1, Var2 = 1")) +
+geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_noteq_sigma1_1, 
+                      color = "Var1=1, Var2=1"), linetype="dotted") +
+geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_eq_sigma3_1, 
+                      color = "Var1=3, Var2=1")) +
+geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_noteq_sigma3_1, 
+                      color = "Var1=3, Var2=1"),  linetype="dotted")+
+geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_eq_sigma9_1, 
+                      color = "Var1=9, Var2=1")) +
+geom_line (data = data_n60_n25, aes (x = mu_dif, y = pwr_noteq_sigma9_1, 
+                      color = "Var1=9, Var2=1"),  linetype="dotted") +
+scale_color_discrete("n1 = 60, n2 = 25")+xlab("Mu1-Mu2")+ylab("Power") 
+
+plot60_60 <- ggplot ()+ geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_eq_sigma1_1, 
+                        color = "Var1=1, Var2 = 1")) +
+geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_noteq_sigma1_1, 
+                        color = "Var1=1, Var2=1"), linetype="dotted") +
+geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_eq_sigma3_1, 
+                        color = "Var1=3, Var2=1")) +
+geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_noteq_sigma3_1, 
+                        color = "Var1=3, Var2=1"),  linetype="dotted")+
+geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_eq_sigma9_1, 
+                        color = "Var1=9, Var2=1")) +
+geom_line (data = data_n60_n60, aes (x = mu_dif, y = pwr_noteq_sigma9_1, 
+                        color = "Var1=9, Var2=1"),  linetype="dotted") +
+scale_color_discrete("n1 = 60, n2 = 60")+xlab("Mu1-Mu2")+ylab("Power") 
+
+# Group plots together
+grid.arrange(plot10_10, plot10_25, plot10_60, ncol=1, nrow=3, 
+left ="Dotted lines - Power for the Unequal Varince Test \n Solid lines - 
+Power for Equal Variance Test") 
+grid.arrange(plot25_10, plot25_25, plot25_60, ncol=1, nrow=3, 
+left ="Dotted lines - Power for the Unequal Varince Test \n Solid lines - 
+Power for Equal Variance Test")
+grid.arrange(plot60_10, plot60_25, plot60_60, ncol=1, nrow=3, 
+left ="Dotted lines - Power for the Unequal Varince Test \n Solid lines - 
+Power for Equal Variance Test")
+```
+
+## Conclusion
+
+The results from the power analysis indicate that the t.tests take into account the absolute value of the difference in means between the two sample populations both when the variances are equal and not equal. This is shown by the fact that each of the graphs is symmetrical around mu1-mu2=0. 
+The relationship between the difference in means and the difference in variance is that as the difference in variances between the sample populations increases it takes and larger absolute value of the difference in means to raise the power. This can be seen for both the equal variance t.test and the unequal t.test, though the uneual test does increase the power faster than the equal one.
+The impact that sample size has on the t.tests are that as the sample size increases so does the rate in which power is increased. The tests for both the equal and unequal variances give very similar results when the sample size, n, is equal. The reason for this is that when the n's are equal the fraction for the denominator for the t.tests are much closer to each other as in equal variance: $\sqrt{(sp^2/n_1)+(sp^2/n_2)}$ => $\sqrt{\frac{(s_1^2+s_2^2)}{2n}}$ and unequal variance: $\sqrt{(s_1^2/n_1)+(s_2^2/n_2)}$ => $\sqrt{(s_1^2+s_2^2)/2n)}$ which means that the denominator is equal for each of these. So now the variation we see in the plots for these comparisons are from the variability in the data sets generated with these conditions.
